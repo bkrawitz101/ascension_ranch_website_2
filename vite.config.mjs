@@ -1,11 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// ESM Vite config for GitHub Pages
-export default defineConfig({
-  base: '/AscensionRanchWebsite/',
-  plugins: [react()],
-  build: {
-    outDir: 'dist'
+// Env-friendly ESM Vite config. Use BUILD_TARGET=gh for GitHub Pages base.
+export default defineConfig(() => {
+  const base = process.env.BUILD_TARGET === 'gh' ? '/AscensionRanchWebsite/' : '/'
+  return {
+    base,
+    plugins: [react()],
+    build: {
+      outDir: 'dist'
+    }
   }
 })

@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:gh": "BUILD_TARGET=gh vite build",
+    "build:prod": "BUILD_TARGET=prod vite build",
     "postbuild": "cp -f dist/index.html dist/404.html",
     "preview": "vite preview --port 4173",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
+    "deploy:gh": "npm run build:gh && gh-pages -d dist",
     "backup": "bash ./scripts/backup.sh",
     "backup:full": "bash ./scripts/backup.sh --full"
   },

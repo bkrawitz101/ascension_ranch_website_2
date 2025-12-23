@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Small set of additional defaults to better match the provided design */
+:root{--accent:#A67C52}
+body{background:#FDFCF8}
+
+/* utility to approximate aspect-[16/10] used in App */
+.aspect-\\[16/10\\]{position:relative}
+.aspect-\\[16/10\\]::before{content:'';display:block;padding-top:62.5%}
+.aspect-\\[16/10\\] > *{position:absolute;inset:0}
+
+/* Story page: full-height hero sections with smooth snap + reveal */
+@media (min-width: 768px) {
+	.story-scroll {
+		height: calc(100vh - 0px);
+		overflow-y: auto;
+		scroll-snap-type: y proximity;
+		-webkit-overflow-scrolling: touch;
+		scroll-behavior: smooth;
+		padding-block: 1.25rem;
+	}
+
+	.story-section {
+		scroll-snap-align: start;
+		height: min(75vh, 100vh);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 2rem 1rem;
+		margin-block: 0.75rem;
+		position: relative;
+		overflow: hidden;
+	}
+}
+
+.story-section .content {
+	max-width: 54rem;
+	transition: transform 500ms cubic-bezier(.2,.9,.2,1), opacity 500ms ease;
+	transform: translateY(10px) scale(0.998);
+	opacity: 0;
+}
+.story-section.is-active .content {
+	transform: translateY(0) scale(1);
+	opacity: 1;
+}
+
+/* background layer for slide-like sections */
+.story-section .bg-layer {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	transform: scale(1.03);
+	filter: brightness(0.6) saturate(0.95);
+	z-index: 0;
+}
+.story-section .overlay {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(180deg, rgba(13,13,13,0.35), rgba(13,13,13,0.15) 40%, rgba(255,255,255,0.0) 70%);
+	z-index: 1;
+}
+.story-section .content { z-index: 2; }
+
+/* panel for text to improve readability over busy backgrounds */
+.story-section .content {
+	max-width: 54rem;
+	z-index: 3;
+	display: block;
+}
+
+.story-section .content .panel {
+	background: rgba(255,255,255,0.88);
+	color: #2D2926;
+	padding: 1.25rem 1.5rem;
+	border-radius: 0.5rem;
+	box-shadow: 0 12px 30px rgba(16,16,16,0.12);
+	backdrop-filter: blur(6px);
+}
+
+.story-section .content p { font-size: 1.0625rem; line-height: 1.7; }
+.story-section .content .lead { font-size: 1.25rem; font-weight: 700; }
+
+@media (min-width: 768px) {
+	.story-section .content { width: 58%; margin-left: 6%; }
+	.story-section .content .panel { padding: 2rem 2.25rem; }
+}
+
+@media (max-width: 767px) {
+	.story-section .content .panel { background: rgba(255,255,255,0.96); padding: 0.9rem 1rem; }
+	.story-section .bg-layer { transform: scale(1.06); }
+}
+
+/* smaller screens: stack nicely, no snap enforced */
+@media (max-width: 767px) {
+	.story-section { padding: 2rem 1rem; }
+	.story-scroll { overflow: visible; height: auto; }
+	.story-section .content { opacity: 1; transform: none; }
+}
+

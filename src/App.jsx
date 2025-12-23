@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import Campsites from './pages/Campsites'
+import CampsiteDetail from './pages/CampsiteDetail'
+import CampsiteCard from './components/CampsiteCard'
+import { campsites } from './data/campsites'
 import { 
   Menu, 
   X, 
@@ -25,6 +29,13 @@ import {
 const App = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // Compute current path relative to the app base for simple routing
+  const base = import.meta.env.BASE_URL || '/'
+  const path = typeof window !== 'undefined'
+    ? window.location.pathname.replace(base, '').replace(/^\//, '')
+    : ''
+
+  const isCampsiteRoute = path === 'campsites' || path.startsWith('campsites/')
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -34,10 +45,10 @@ const App = () => {
 
   const navLinks = [
     { name: 'The Land', href: '#land' },
-    { name: 'Stays', href: '#stays' },
     { name: 'Experiences', href: '#experiences' },
     { name: 'The Animals', href: '#animals' },
     { name: 'Our Story', href: `${import.meta.env.BASE_URL}story` },
+    { name: 'Campsites', href: `${import.meta.env.BASE_URL}campsites` },
     { name: 'Contact', href: '#contact' },
   ];
 
@@ -64,22 +75,7 @@ const App = () => {
     }
   ];
 
-  const stays = [
-    { 
-      name: 'The Horse Pasture Retreat', 
-      tag: 'Immersive',
-      desc: 'A premium site located directly within the grazing lands. Wake up to the sound of horses nearby.',
-      price: 'From $65/night',
-      img: 'https://images.unsplash.com/photo-1533910534207-90f31029a78e?auto=format&fit=crop&q=80&w=800'
-    },
-    { 
-      name: 'Oak Savannah Hideaway', 
-      tag: 'Secluded',
-      desc: 'Tucked away in a private grove of ancient oaks. Perfect for deep rest and sunset watching.',
-      price: 'From $75/night',
-      img: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&q=80&w=800'
-    }
-  ];
+  // Use real campsites for previews on the main page
 
   return (
     <div className="min-h-screen bg-[#FDFCF8] font-serif text-[#2D2926] selection:bg-[#E2D1C3]">
@@ -116,6 +112,9 @@ const App = () => {
         </div>
       </nav>
 
+      {/* Main content: either full homepage or campsites-only */}
+      {!isCampsiteRoute && (
+      <>
       {/* Hero: More Exciting & Atmospheric */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0">
@@ -137,9 +136,9 @@ const App = () => {
             Escape to 100 acres of regenerative paradise. Immerse yourself in the working rhythm of a modern ranch, where every stay contributes to a healthier planet.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up">
-            <button className="bg-white text-[#2D2926] px-10 py-5 rounded-sm text-sm font-bold uppercase tracking-widest hover:bg-[#E2D1C3] transition-all shadow-xl">
-              Explore Stays
-            </button>
+            <a href={`${import.meta.env.BASE_URL}campsites`} className="bg-white text-[#2D2926] px-10 py-5 rounded-sm text-sm font-bold uppercase tracking-widest hover:bg-[#E2D1C3] transition-all shadow-xl inline-block">
+              Explore Campsites
+            </a>
             <a href={`${import.meta.env.BASE_URL}story`} className="border-2 border-white text-white px-10 py-5 rounded-sm text-sm font-bold uppercase tracking-widest hover:bg-white/10 transition-all backdrop-blur-sm inline-block">
               Our Story
             </a>
@@ -230,34 +229,25 @@ const App = () => {
             <span className="text-[#A67C52] text-xs font-bold uppercase tracking-[0.3em] mb-4 block">Immersive Accommodations</span>
             <h2 className="text-4xl md:text-5xl font-bold">Your Home on the Land</h2>
           </div>
-          <button className="group flex items-center gap-2 text-sm font-bold uppercase tracking-widest border-b-2 border-[#A67C52] pb-1">
-            Browse All Stays <ArrowUpRight className="w-4 h-4" />
-          </button>
+          <a href={`${import.meta.env.BASE_URL}campsites`} className="group flex items-center gap-2 text-sm font-bold uppercase tracking-widest border-b-2 border-[#A67C52] pb-1">
+            Browse All Campsites <ArrowUpRight className="w-4 h-4" />
+          </a>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {stays.map((stay, idx) => (
-            <div key={idx} className="group cursor-pointer">
-              <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6">
-                <img src={stay.img} alt={stay.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-4 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full">
-                  {stay.tag}
-                </div>
-              </div>
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-2xl font-bold mb-2">{stay.name}</h3>
-                  <p className="text-[#5C5752] max-w-md mb-4">{stay.desc}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold text-[#A67C52]">{stay.price}</p>
-                  <p className="text-[10px] uppercase tracking-widest opacity-40">Per Night</p>
-                </div>
-              </div>
-            </div>
+          {campsites.slice(0,2).map((site) => (
+            <CampsiteCard key={site.id} site={site} href={`${import.meta.env.BASE_URL}campsites/${site.id}`} />
           ))}
         </div>
       </section>
+
+      </>)}
+
+      {isCampsiteRoute && (
+        <main className="py-20 px-6 max-w-7xl mx-auto">
+          {path === 'campsites' ? <Campsites /> : <CampsiteDetail id={path.split('/')[1]} />}
+        </main>
+      )}
 
       {/* Meet the Herd */}
       <section id="animals" className="py-32 bg-[#F5F2ED] border-y border-[#E2D1C3]">

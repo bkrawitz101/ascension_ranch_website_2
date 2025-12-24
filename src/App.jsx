@@ -29,6 +29,7 @@ import {
 const App = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(false);
   // Compute current path relative to the app base for simple routing
   const base = import.meta.env.BASE_URL || '/'
   const path = typeof window !== 'undefined'
@@ -38,7 +39,12 @@ const App = () => {
   const isCampsiteRoute = path === 'campsites' || path.startsWith('campsites/')
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+      const atBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 20);
+      setIsAtBottom(atBottom);
+    };
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -82,11 +88,12 @@ const App = () => {
       {/* Navigation */}
       <nav 
         className={`fixed w-full z-50 transition-all duration-500 ${
-          scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'
+          scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm py-3' : 'bg-[#FBF7F3]/80 backdrop-blur-sm border-b border-[#E8D8C6] py-5'
         }`}
+        role="navigation"
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-12 flex justify-between items-center">
-          <div className={`flex flex-col transition-colors ${scrolled ? 'text-[#2D2926]' : 'text-white'}`}>
+          <div className="flex flex-col text-[#2D2926] transition-colors">
             <span className="text-2xl font-bold tracking-tighter uppercase font-sans">Ascension Ranch</span>
             <span className="text-[10px] tracking-[0.2em] uppercase font-sans opacity-60">Regenerative Agritourism · CA</span>
           </div>
@@ -96,7 +103,7 @@ const App = () => {
               <a 
                 key={link.name} 
                 href={link.href} 
-                className={`text-xs font-semibold uppercase tracking-widest hover:text-[#A67C52] transition-colors ${scrolled ? 'text-[#2D2926]' : 'text-white'}`}
+                className={`text-xs font-semibold uppercase tracking-widest hover:text-[#A67C52] transition-colors text-[#2D2926]'`}
               >
                 {link.name}
               </a>
@@ -106,7 +113,7 @@ const App = () => {
             </button>
           </div>
 
-          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`lg:hidden p-2 ${scrolled ? 'text-[#2D2926]' : 'text-white'}`}>
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`lg:hidden p-2 text-[#2D2926]`}>
             {isMenuOpen ? <X /> : <Menu />}
           </button>
         </div>
@@ -340,6 +347,18 @@ const App = () => {
         </div>
       )}
 
+      {/* Persistent Home button: hidden on homepage; compact icon normally, shows arrow+text when scrolled to bottom */}
+      {path !== '' && (
+        <a
+          href={`${import.meta.env.BASE_URL}`}
+          aria-label="Go home"
+          className={`fixed left-4 bottom-6 z-[70] transition-all ${isAtBottom ? 'bg-transparent border border-[#A67C52] text-[#A67C52] px-4 py-2 rounded-md shadow-lg' : 'bg-[#A67C52] text-white p-3 rounded-full shadow-lg'}`}
+        >
+          {isAtBottom ? <span className="text-sm font-bold uppercase tracking-widest">← Home</span> : <span className="sr-only">Home</span>}
+          {!isAtBottom && <span aria-hidden className="block text-white">←</span>}
+        </a>
+      )}
+
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -347,6 +366,11 @@ const App = () => {
         .animate-fade-in { animation: fade-in 1.5s ease-out forwards; }
         .animate-fade-in-up { animation: fade-in-up 1.5s ease-out 0.5s forwards; opacity: 0; }
         .animate-pulse-slow { animation: pulse-slow 25s ease-in-out infinite; }
+        /* Shared parchment/newspaper styles used by Story and Campsite pages */
+        .paper-frame{ background: linear-gradient(180deg,#fdfaf6 0%,#f5efe3 100%); position:relative; }
+        .parchment-panel{ background: linear-gradient(180deg,#FFF8ED 0%,#F5EFE7 100%); background-image: linear-gradient(180deg,#FFF8ED 0%,#F5EFE7 100%), url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.035' fill='%23ffffff'/></svg>"); background-blend-mode: overlay; border:1px solid rgba(135,95,60,0.12); box-shadow: inset 0 2px 0 rgba(255,255,255,0.6); }
+        .parchment-large{ background: linear-gradient(180deg,#FBF7F3 0%,#F5E0C8 100%); }
+        .paper-frame:after{ content:' '; position:absolute; right:10px; top:8px; width:72px; height:72px; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72'><text x='0' y='52' font-family='serif' font-size='36' fill='%237a5133'>✦</text></svg>"); opacity:0.08 }
       `}} />
     </div>
   );
